@@ -1,0 +1,149 @@
+erDiagram
+    Usuario {
+        INT idUsuario PK
+        VARCHAR Nome
+        VARCHAR Cpf
+        DATE DataNascimento
+        TINYINT EhPrestador
+        VARCHAR Email
+        VARCHAR Senha
+    }
+
+    Endereco {
+        INT idEndereco PK
+        VARCHAR CEP
+        VARCHAR Pais
+        VARCHAR Estado
+        VARCHAR Cidade
+        VARCHAR Logradouro
+        INT Numero
+        INT idUsuario FK
+    }
+
+    Telefone {
+        INT idTelefone PK
+        VARCHAR Numero
+        INT idUsuario FK
+    }
+
+    Prestador {
+        VARCHAR CNPJ PK
+        VARCHAR RazaoSocial
+        INT idUsuario FK
+    }
+
+    Fornecedor {
+        VARCHAR CNPJ PK
+        VARCHAR RazaoSocial
+        VARCHAR Telefone
+        VARCHAR Pais
+        VARCHAR Estado
+        VARCHAR Cidade
+        VARCHAR Logradouro
+        INT Numero
+        VARCHAR CEP
+    }
+
+    CategoriaProduto {
+        INT idCategoriaProduto PK
+        VARCHAR Titulo
+    }
+
+    Produto {
+        INT idProduto PK
+        VARCHAR Titulo
+        LONGTEXT Descricao
+        DECIMAL Valor
+        INT Estoque
+        INT idCategoriaProduto FK
+    }
+
+    FornecedorProduto {
+        VARCHAR Fornecedor_CNPJ PK, FK
+        INT Produto_idProduto PK, FK
+    }
+
+    Transacao {
+        INT idTransacao PK
+        DATETIME DataTransacao
+        VARCHAR FormaPagamento
+        INT idUsuario FK
+    }
+
+    ProdutoTransacao {
+        INT Transacao_idTransacao PK, FK
+        INT Produto_idProduto PK, FK
+        INT Quantidade
+        DECIMAL ValorUnitario
+    }
+
+    TipoServico {
+        INT idTipoServico PK
+        VARCHAR Titulo
+        DECIMAL Taxa
+    }
+
+    Servico {
+        INT idServico PK
+        DECIMAL Valor
+        VARCHAR Titulo
+        VARCHAR Descricao
+        VARCHAR CNPJPrestador FK
+        INT idTipoServico FK
+    }
+
+    ContratoServico {
+        INT Transacao_idTransacao PK, FK
+        INT Servico_idServico PK, FK
+        VARCHAR NFS
+        DECIMAL ValorServico
+    }
+
+    InventarioProduto {
+        INT idItemInventario PK
+        VARCHAR NumeroSerie
+        VARCHAR StatusDisponibilidade
+        INT idProduto FK
+    }
+
+    Aluguel {
+        INT idAluguel PK
+        DATETIME DataInicio
+        DATETIME DataFimPrevista
+        DATETIME DataDevolucaoReal
+        DECIMAL ValorTotal
+        VARCHAR StatusAluguel
+        INT idUsuario FK
+    }
+
+    ItensAluguel {
+        INT Aluguel_idAluguel PK, FK
+        INT InventarioProduto_idItemInventario PK, FK
+    }
+
+    %% --- Relacionamentos Corrigidos ---
+
+    Usuario ||--o{ Endereco : "possui"
+    Usuario ||--o{ Telefone : "possui"
+    Usuario ||--|| Prestador : "eh_um"
+    Usuario ||--o{ Transacao : "realiza"
+    Usuario ||--o{ Aluguel : "realiza"
+
+    CategoriaProduto ||--o{ Produto : "categoriza"
+    Prestador ||--o{ Servico : "oferece"
+    TipoServico ||--o{ Servico : "classifica"
+    Produto ||--o{ InventarioProduto : "eh_modelo_de"
+    
+    %% --- Relacionamentos com Tabelas de Associação ---
+
+    Transacao ||--|{ ProdutoTransacao : "contem"
+    Produto   }o--|| ProdutoTransacao : "esta_em"
+
+    Transacao ||--|{ ContratoServico : "contrata"
+    Servico   }o--|| ContratoServico : "eh_contratado_em"
+
+    Fornecedor ||--|{ FornecedorProduto : "fornece"
+    Produto    ||--|{ FornecedorProduto : "eh_fornecido_por"
+
+    Aluguel           ||--|{ ItensAluguel : "contem"
+    InventarioProduto }o--|| ItensAluguel : "esta_em"                                         
